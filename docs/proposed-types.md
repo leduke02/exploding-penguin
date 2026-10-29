@@ -30,9 +30,8 @@ EatingLevel:
 Is shared because: stored as last_eating_level in GameState. Part 4 reads it for illness probability and the final arrival food calculation, so it can't be local to Part 3.
 
 
-Part 4: EventKind (proposed by Part 4): —----------------------------------------------------------------- 1: <Variant_Name>: What it does: signifies that <the event that happened> Result: <effect on GameState, e.g. lose X food / lose X miles> 2: <Variant_Name>: What it does: signifies that <the event that happened> Result: <effect on GameState> ... N-1: <Special_Case_1>: What it does: <what this special case signals> Result: <what apply_event does with it> N: <Special_Case_2>: What it does: <what this special case signals> Result: <what apply_event does with it> —-------------------------------------------------------------------------- Is internal to Part 4 because only roll_random_event returns it and only apply_event matches on it; no other part needs to construct or match on it. 
-
-
+Part 4: 
+EventKind:
 ---------------------------------------------------------------
 1. WagonBreakdown
    What it does: Wagon breaks down; you lose time and supplies
@@ -117,3 +116,5 @@ Part 4: EventKind (proposed by Part 4): —-------------------------------------
 16. FriendlyIndians   (special case)
    What it does: Fallback event where Indians help you.
    Final result: Food increases by about 14.
+---------------------------------------------------------------
+Is internal to Part 4 because only roll_random_event returns it and only apply_event matches on it; no other part needs to construct or match on it. 
