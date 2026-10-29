@@ -26,7 +26,7 @@ Eatinglevel:
 	3: Well:
 		What it does: highest eating level for the turn
 		Result: highest food cost, illness less likely
-—--------------------------------------------------------------------------
+---------------------------------------------------------------
 Is shared because: stored as last_eating_level in GameState. Part 4 reads it for illness probability and the final arrival food calculation, so it can't be local to Part 3.
 
 
