@@ -1,3 +1,19 @@
+Part 1: 
+GameState:
+—----------------------------------------------------------------- 
+1: Food: What it does: signifies the food supply 
+Result: eaten every turn, gained by hunting, lost by events; running out is fatal 
+2: Bullets: What it does: signifies the ammunition supply 
+Result: gates hunting and combat; running negative during a hostile encounter is fatal 
+3: Clothing: What it does: signifies the clothing supply 
+Result: decides whether cold weather and blizzards trigger illness 
+4: Misc_Supplies: What it does: signifies medicine and repairs 
+Result: consumed by illness and events; running negative is fatal 
+5: Cash: What it does: signifies the player's money 
+Result: spent at the fort and on doctor's bills; can't go negative or the doctor's bill is fatal
+—-------------------------------------------------------------------------- 
+Is shared because every part reads or modifies at least one of these.
+
 Part 2: Caleb Kellum 
 TurnChoice:
 ---------------------------------------------------------------
