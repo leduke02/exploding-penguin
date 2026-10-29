@@ -14,9 +14,9 @@ Result: lose 45 miles, run fort_shop function
 Is shared because all other parts rely on it to loop properly.
 
 
-Part 3: Ryker Saenz
-EatingLevel:
-—-----------------------------------------------------------------
+Part 3: Ryker Saenz 
+Eatinglevel:
+---------------------------------------------------------------
 	1: Poor:
 		What it does: lowest eating level for the turn
 		Result: cheapest food cost, illness more likely
