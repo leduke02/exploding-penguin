@@ -1,6 +1,6 @@
-Part 2: Caleb Kellum
-Turnchoice:
-—-----------------------------------------------------------------
+Part 2: Caleb Kellum 
+TurnChoice:
+---------------------------------------------------------------
 	1: Stop_at_Fort: 
 What it does: signifies that player has stopped at a fort
 Result: lose 45 miles, run fort_shop function
@@ -10,7 +10,7 @@ Result: lose 45 miles, run fort_shop function
 	3: Continue:
 		What it does: signifies that the player has chosen to move onto the next cycle
 		Result: ends the current menu cycle and lets the code move to the other factors
-—--------------------------------------------------------------------------
+---------------------------------------------------------------
 Is shared because all other parts rely on it to loop properly.
 
 
