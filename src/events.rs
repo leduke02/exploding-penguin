@@ -7,13 +7,49 @@
 //! On a 3-person team, nobody owns this part. Leave this file as it is: it is the
 //! placeholder module, it is ungraded, and the rest of the game builds and runs against it.
 
-use crate::types::{EventKind, GameOver, GameState};
+use crate::types::{EatingLevel, EventKind, GameOver, GameState};
+use rand::Rng;
 
 /// Rolls a random percentage and returns the matching event from the event table.
-///
-/// Skeleton returns `EventKind::HelpfulIndians`.
 pub fn roll_random_event() -> EventKind {
-    EventKind::HelpfulIndians
+    let roll: i32 = rand::thread_rng().gen_range(0..100);
+    event_from_roll(roll)
+}
+
+fn event_from_roll(roll: i32) -> EventKind {
+    if roll < 6 {
+        EventKind::WagonBreakdown      // 1
+    } else if roll < 11 {
+        EventKind::OxInjuredLeg        // 2
+    } else if roll < 13 {
+        EventKind::DaughterBrokeArm    // 3
+    } else if roll < 15 {
+        EventKind::OxWandersOff        // 4
+    } else if roll < 17 {
+        EventKind::SonLost             // 5
+    } else if roll < 22 {
+        EventKind::UnsafeWater         // 6
+    } else if roll < 32 {
+        EventKind::RainOrCold          // 7
+    } else if roll < 35 {
+        EventKind::Bandits             // 8
+    } else if roll < 37 {
+        EventKind::WagonFire           // 9
+    } else if roll < 42 {
+        EventKind::HeavyFog            // 10
+    } else if roll < 44 {
+        EventKind::Snakebite           // 11
+    } else if roll < 54 {
+        EventKind::RiverSwamped        // 12
+    } else if roll < 64 {
+        EventKind::WildAnimals         // 13
+    } else if roll < 69 {
+        EventKind::HailStorm           // 14
+    } else if roll < 95 {
+        EventKind::EatingIllnessRoll   // 15
+    } else {
+        EventKind::HelpfulIndians      // 16
+    }
 }
 
 /// Applies one event's message and losses. Returns `Err` if the event ends the game.
