@@ -44,8 +44,34 @@ pub fn turn_menu(state: &mut GameState) -> TurnChoice {
 /// Fort purchases at the worse 2:3 exchange rate; stopping costs 45 miles.
 ///
 /// Skeleton does nothing.
-pub fn fort_purchases(state: &mut GameState) {}
-let resources = ["FOOD", 
+pub fn fort_purchases(state: &mut GameState) {
+    let mut player_input: f64 = -10.0;
+    let mut repitition_count: i32;
+    let resources = ["FOOD", "AMMUNITION", "CLOTHING", "MISC"]; 
+    println!("ENTER WHAT YOU WISH TO SPEND ON THE FOLLOWING");
+    for i in 0..4{
+	println!("{}:",resources[i]);
+	loop{	    
+	    if player_input < 0.0{
+      	   player_input = ask_number("");
+  	  }else{break;} 	
+	}
+	if player_input > state.cash{
+	    println!("YOU DON'T HAVE THAT MUCH--KEEP YOUR SPENDING DOWN");
+	    println!("YOU MISS YOUR CHANCE TO SPEND ON THAT ITEM");
+	}else{
+    	    state.cash -= player_input;
+	    repitition_count = i as i32;
+	    match repitition_count{
+		0 => state.food += player_input*(2.0/3.0),
+		1 => state.bullets += player_input*(2.0/3.0),
+		2 => state.clothing += player_input*(2.0/3.0) ,
+		3 => state.misc_supplies += player_input*(2.0/3.0),
+		_ => player_input = 0.0,
+	    };
+	}
+    }
+}
 /// Hunting: bullet check, 45 miles, shooting challenge, then `resolve_hunt_outcome`.
 ///
 /// Skeleton does nothing.
@@ -53,7 +79,7 @@ pub fn go_hunting(state: &mut GameState){
     if state.bullets > 40.0{
 	let score: f64 = shooting_challenge(state.skill_level);
 	resolve_hunt_outcome(score,state);
-	state.mileage -= 45;
+	state.mileage -= 45.0;
     }else{
 	println!("TOUGH---YOU NEED MORE BULLETS TO GO HUNTING");
 	return
@@ -65,7 +91,8 @@ pub fn go_hunting(state: &mut GameState){
 ///
 /// Skeleton returns 2.0 (a middling response) without prompting.
 pub fn shooting_challenge(skill_level: f64) -> f64 {
-    2.0
+    let gun_word = ["BANG", "BLAM", "POW", "WHAM"];
+2.0
 }
 
 /// Turns a response score into a hunt result: food gained, bullets spent, or a miss.
