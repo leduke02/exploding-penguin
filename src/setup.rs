@@ -166,7 +166,39 @@ pub fn advance_turn_date(state: &mut GameState) -> Result<(), GameOver> {
 /// values, record `turn_start_mileage`, print mileage and the resource table.
 ///
 /// Skeleton does nothing.
-pub fn print_status_table(state: &mut GameState) {}
+pub fn print_status_table(state: &mut GameState) {
+    // Clamp negatives up to 0.
+    state.food = state.food.max(0.0);
+    state.bullets = state.bullets.max(0.0);
+    state.clothing = state.clothing.max(0.0);
+    state.misc_supplies = state.misc_supplies.max(0.0);
+ 
+    if state.food < 13.0 {
+        println!("YOU'D BETTER DO SOME HUNTING OR BUY FOOD SOON!!!!");
+    }
+ 
+    // Floor to whole numbers.
+    state.food = state.food.floor();
+    state.bullets = state.bullets.floor();
+    state.clothing = state.clothing.floor();
+    state.misc_supplies = state.misc_supplies.floor();
+    state.cash = state.cash.floor();
+    state.mileage = state.mileage.floor();
+    state.turn_start_mileage = state.mileage;
+ 
+    if state.mountain_crossed {
+        println!("TOTAL MILEAGE IS 950");
+        state.mountain_crossed = false;
+    } else {
+        println!("TOTAL MILEAGE IS {}", state.mileage);
+    }
+ 
+    println!("FOOD\tBULLETS\tCLOTHING\tMISC. SUPP.\tCASH");
+    println!(
+        "{}\t{}\t{}\t\t{}\t\t{}",
+        state.food, state.bullets, state.clothing, state.misc_supplies, state.cash
+    );
+}
 
 /// Charges the $20 doctor's bill when an illness or injury flag is set. Returns
 /// `Err(GameOver::CantAffordDoctor)` when cash cannot cover it.
