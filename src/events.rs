@@ -68,14 +68,13 @@ pub fn cross_mountains(state: &mut GameState) -> Result<(), GameOver> {
 
 /// Rolls illness severity. Returns `Err(GameOver::RanOutOfMedicalSupplies)` when the
 /// medicine runs out.
-///
-/// Skeleton does nothing and returns `Ok(())`.
 fn eating_number(level: EatingLevel) -> f64 {
     match level {
         EatingLevel::Poor => 1.0,
         EatingLevel::Moderate => 2.0,
         EatingLevel::Well => 3.0,
-
+      }
+}
 
 pub fn illness_check(state: &mut GameState) -> Result<(), GameOver> {
  let mut rng = rand::thread_rng();
