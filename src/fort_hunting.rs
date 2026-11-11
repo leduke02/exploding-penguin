@@ -45,16 +45,18 @@ pub fn turn_menu(state: &mut GameState) -> TurnChoice {
 ///
 /// Skeleton does nothing.
 pub fn fort_purchases(state: &mut GameState) {}
-
+let resources = ["FOOD", 
 /// Hunting: bullet check, 45 miles, shooting challenge, then `resolve_hunt_outcome`.
 ///
 /// Skeleton does nothing.
-pub fn go_hunting(state: &mut GameState)-> bool {
+pub fn go_hunting(state: &mut GameState){
     if state.bullets > 40.0{
-	return true
+	let score: f64 = shooting_challenge(state.skill_level);
+	resolve_hunt_outcome(score,state);
+	state.mileage -= 45;
     }else{
 	println!("TOUGH---YOU NEED MORE BULLETS TO GO HUNTING");
-	return false
+	return
     }
 }
 
