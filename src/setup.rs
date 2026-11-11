@@ -54,17 +54,80 @@ pub fn get_shooting_skill_level() -> f64 {
 ///
 /// Skeleton returns a generic, plausible starting state so other parts can be tested.
 pub fn purchase_supplies(skill_level: f64) -> GameState {
-    GameState {
-        food: 200.0,
-        bullets: 1000.0,
-        clothing: 50.0,
-        misc_supplies: 50.0,
-        cash: 100.0,
-        oxen_spend: 250.0,
-        skill_level,
-        ..GameState::default()
-    }
-}
+    let (oxen, food, ammo, clothing, misc) = 'buying: loop {
+        // --- Oxen: must be between $200 and $300 ---
+        let oxen = loop {
+            println!("HOW MUCH DO YOU WANT TO SPEND ON YOUR OXEN TEAM");
+            let v = io::ask_number();
+            if v < 200.0 {
+                println!("NOT ENOUGH");
+            } else if v > 300.0 {
+                println!("TOO MUCH");
+            } else {
+                break v;
+            }
+        };
+ 
+        // --- Food ---
+        let food = loop {
+            println!("HOW MUCH DO YOU WANT TO SPEND ON FOOD");
+            let v = io::ask_number();
+            if v < 0.0 {
+                println!("IMPOSSIBLE");
+            } else {
+                break v;
+            }
+        };
+ 
+        // --- Ammunition ---
+        let ammo = loop {
+            println!("HOW MUCH DO YOU WANT TO SPEND ON AMMUNITION");
+            let v = io::ask_number();
+            if v < 0.0 {
+                println!("IMPOSSIBLE");
+            } else {
+                break v;
+            }
+        };
+ 
+        // --- Clothing ---
+        let clothing = loop {
+            println!("HOW MUCH DO YOU WANT TO SPEND ON CLOTHING");
+            let v = io::ask_number();
+            if v < 0.0 {
+                println!("IMPOSSIBLE");
+            } else {
+                break v;
+            }
+        };
+ 
+        // --- Miscellaneous supplies ---
+        let misc = loop {
+            println!("HOW MUCH DO YOU WANT TO SPEND ON MISCELLANEOUS SUPPLIES");
+            let v = io::ask_number();
+            if v < 0.0 {
+                println!("IMPOSSIBLE");
+            } else {
+                break v;
+            }
+        };
+ 
+        // --- Overspent? Restart all five questions from the oxen prompt ---
+        if oxen + food + ammo + clothing + misc > 700.0 {
+            println!("YOU OVERSPENT--YOU ONLY HAD $700 TO SPEND. BUY AGAIN");
+            continue 'buying;
+        }
+ 
+        break (oxen, food, ammo, clothing, misc);
+    };
+ 
+    let bullets = ammo * 50.0;
+    let cash = 700.0 - (oxen + food + ammo + clothing + misc);
+ 
+    println!("AFTER ALL YOUR PURCHASES, YOU NOW HAVE");
+    println!("{} DOLLARS LEFT", cash);
+    println!("MONDAY MARCH 29 1847");
+ 
 
 /// Advances to the next turn and prints its date. Returns `Err(GameOver::TrailTooLong)`
 /// when the trip runs past the last date in the table.
