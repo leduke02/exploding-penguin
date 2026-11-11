@@ -70,10 +70,43 @@ pub fn cross_mountains(state: &mut GameState) -> Result<(), GameOver> {
 /// medicine runs out.
 ///
 /// Skeleton does nothing and returns `Ok(())`.
+fn eating_number(level: EatingLevel) -> f64 {
+    match level {
+        EatingLevel::Poor => 1.0,
+        EatingLevel::Moderate => 2.0,
+        EatingLevel::Well => 3.0,
+
+
 pub fn illness_check(state: &mut GameState) -> Result<(), GameOver> {
+ let mut rng = rand::thread_rng();
+    let e = eating_number(state.last_eating_level);
+
+    // Roll 1: mild?  1..100 < 10 + 35 * (e - 1)
+    let mild_chance = 10.0 + 35.0 * (e - 1.0);
+    if (rng.gen_range(1..=100) as f64) < mild_chance {
+        println!("MILD ILLNESS---MEDICINE USED");
+        state.mileage -= 5.0;
+        state.misc_supplies -= 2.0;
+    } else {
+        // Roll 2: bad vs serious.  1..100 < 100 - 40 / 4^(e - 1)
+        let bad_chance = 100.0 - 40.0 / 4f64.powf(e - 1.0);
+        if (rng.gen_range(1..=100) as f64) < bad_chance {
+            println!("BAD ILLNESS---MEDICINE USED");
+            state.mileage -= 5.0;
+            state.misc_supplies -= 2.0;
+        } else {
+            println!("SERIOUS ILLNESS---");
+            println!("YOU MUST STOP FOR MEDICAL ATTENTION");
+            state.misc_supplies -= 10.0;
+            state.illness_pending = true; // Part 1's apply_doctor_bill reads this next turn
+        }
+    }
+
+    if state.misc_supplies < 0.0 {
+        return Err(GameOver::RanOutOfMedicalSupplies);
+    }
     Ok(())
 }
-
 /// Prints the ending for a cause of death, then the formalities sequence.
 ///
 /// Skeleton prints one generic line so a finished game is visible.
