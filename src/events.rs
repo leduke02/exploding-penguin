@@ -8,11 +8,10 @@
 //! placeholder module, it is ungraded, and the rest of the game builds and runs against it.
 
 use crate::types::{EatingLevel, EventKind, GameOver, GameState};
-use rand::Rng;
 
 /// Rolls a random percentage and returns the matching event from the event table.
 pub fn roll_random_event() -> EventKind {
-    let roll: i32 = rand::thread_rng().gen_range(0..100);
+    let roll: i32 = rand::random_range(0..100);
     event_from_roll(roll)
 }
 
@@ -59,15 +58,80 @@ pub fn apply_event(state: &mut GameState, event: EventKind) -> Result<(), GameOv
     Ok(())
 }
 
-/// Mountain crossing past mile 950: rugged mountains, South Pass, Blue Mountains.
-///
-/// Skeleton does nothing and returns `Ok(())`.
-pub fn cross_mountains(state: &mut GameState) -> Result<(), GameOver> {
+/// Random whole number in 0..=n, as an f64 ("lose 30 plus up to 40 random miles").
+fn up_to(n: i32) -> f64 {
+    rand::random_range(0..=n) as f64
+}
+
+/// A blizzard in the pass: sets the flag, costs supplies and miles, and may cause
+/// illness from exposure.
+fn blizzard(state: &mut GameState) -> Result<(), GameOver> {
+    println!("BLIZZARD IN MOUNTAIN PASS--TIME AND SUPPLIES LOST");
+    state.blizzard_this_turn = true;
+    state.food -= 25.0;
+    state.misc_supplies -= 10.0;
+    state.bullets -= 300.0;
+    state.mileage -= 30.0 + up_to(40);
+
+    // Clothing below a small, slightly randomized threshold (about 18-20) means exposure.
+    let threshold = 18.0 + 2.0 * rand::random_range(0.0..1.0);
+    if state.clothing < threshold {
+        illness_check(state)?;
+    }
     Ok(())
 }
 
-/// Rolls illness severity. Returns `Err(GameOver::RanOutOfMedicalSupplies)` when the
-/// medicine runs out.
+/// Mountain crossing past mile 950: rugged mountains, South Pass, Blue Mountains
+pub fn cross_mountains(state: &mut GameState) -> Result<(), GameOver> {
+   if state.mileage <= 950.0 {
+        return Ok(());
+    }
+
+
+    // Rugged mountains: most likely near mile 1500, less likely farther away.
+    let d = state.mileage / 100.0 - 15.0;
+    let threshold = 9.0 - (d * d + 72.0) / (d * d + 12.0);
+    if rand::random_range(0.0..10.0) > threshold {
+        println!("RUGGED MOUNTAINS");
+        if rand::random_range(0.0..1.0) < 0.10 {
+            println!("YOU GOT LOST---LOSE VALUABLE TIME TRYING TO FIND TRAIL!");
+            state.mileage -= 60.0;
+        } else if rand::random_range(0.0..1.0) < 0.11 {
+            println!("WAGON DAMAGED!---LOSE TIME AND SUPPLIES");
+            state.misc_supplies -= 5.0;
+            state.bullets -= 200.0;
+            state.mileage -= 20.0 + up_to(30);
+        } else {
+            println!("THE GOING GETS SLOW");
+            state.mileage -= 45.0 + up_to(50);
+        }
+    }
+
+    // South Pass: one-time checkpoint, 80% blizzard chance.
+    if !state.south_pass_cleared {
+        state.south_pass_cleared = true;
+        if rand::random_range(0.0..1.0) < 0.80 {
+            blizzard(state)?;
+        } else {
+            println!("YOU MADE IT SAFELY THROUGH SOUTH PASS--NO SNOW");
+        }
+    }
+
+    // Blue Mountains: one-time checkpoint once mileage reaches 1700, 70% blizzard chance.
+    if state.mileage >= 1700.0 && !state.blue_mountains_cleared {
+        state.blue_mountains_cleared = true;
+        if rand::random_range(0.0..1.0) < 0.70 {
+            blizzard(state)?;
+        } else {
+            // Matches the flowchart: same safe message as South Pass.
+            println!("YOU MADE IT SAFELY THROUGH SOUTH PASS--NO SNOW");
+        }
+    }
+
+    Ok(())
+}
+
+/// Poor = 1, Moderate = 2, Well = 3 (the "EatingLevel" in the formulas).
 fn eating_number(level: EatingLevel) -> f64 {
     match level {
         EatingLevel::Poor => 1.0,
@@ -76,20 +140,21 @@ fn eating_number(level: EatingLevel) -> f64 {
       }
 }
 
+/// Rolls illness severity. Returns `Err(GameOver::RanOutOfMedicalSupplies)` when the
+/// medicine runs out.
 pub fn illness_check(state: &mut GameState) -> Result<(), GameOver> {
- let mut rng = rand::thread_rng();
     let e = eating_number(state.last_eating_level);
 
     // Roll 1: mild?  1..100 < 10 + 35 * (e - 1)
     let mild_chance = 10.0 + 35.0 * (e - 1.0);
-    if (rng.gen_range(1..=100) as f64) < mild_chance {
+    if (rand::random_range(1..=100) as f64) < mild_chance {
         println!("MILD ILLNESS---MEDICINE USED");
         state.mileage -= 5.0;
         state.misc_supplies -= 2.0;
     } else {
         // Roll 2: bad vs serious.  1..100 < 100 - 40 / 4^(e - 1)
         let bad_chance = 100.0 - 40.0 / 4f64.powf(e - 1.0);
-        if (rng.gen_range(1..=100) as f64) < bad_chance {
+        if (rand::random_range(1..=100) as f64) < bad_chance {
             println!("BAD ILLNESS---MEDICINE USED");
             state.mileage -= 5.0;
             state.misc_supplies -= 2.0;
