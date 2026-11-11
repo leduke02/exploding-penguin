@@ -205,5 +205,17 @@ pub fn print_status_table(state: &mut GameState) {
 ///
 /// Skeleton does nothing and returns `Ok(())`.
 pub fn apply_doctor_bill(state: &mut GameState) -> Result<(), GameOver> {
+    if !(state.illness_pending || state.injury_pending) {
+        return Ok(());
+    }
+ 
+    state.cash -= 20.0;
+    println!("DOCTOR'S BILL IS $20");
+    state.illness_pending = false;
+    state.injury_pending = false;
+ 
+    if state.cash < 0.0 {
+        return Err(GameOver::CantAffordDoctor); // Part 4 prints YOU CAN'T AFFORD A DOCTOR
+    }
     Ok(())
 }
