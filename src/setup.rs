@@ -127,13 +127,38 @@ pub fn purchase_supplies(skill_level: f64) -> GameState {
     println!("AFTER ALL YOUR PURCHASES, YOU NOW HAVE");
     println!("{} DOLLARS LEFT", cash);
     println!("MONDAY MARCH 29 1847");
- 
+ // mileage = 0, turn_number = 0, and all flags (illness_pending,
+    // injury_pending, south_pass_cleared, blue_mountains_cleared,
+    // fort_available_next_turn) start cleared via Default.
+    GameState {
+        food,
+        bullets,
+        clothing,
+        misc_supplies: misc,
+        cash,
+        oxen_spend: oxen,
+        skill_level,
+        ..GameState::default()
+    }
+} 
 
 /// Advances to the next turn and prints its date. Returns `Err(GameOver::TrailTooLong)`
 /// when the trip runs past the last date in the table.
 ///
 /// Skeleton does nothing and returns `Ok(())`.
 pub fn advance_turn_date(state: &mut GameState) -> Result<(), GameOver> {
+    state.turn_number += 1;
+ 
+    if state.turn_number >= 20 {
+        println!("YOU HAVE BEEN ON THE TRAIL TOO LONG ------");
+        println!("YOUR FAMILY DIES IN THE FIRST BLIZZARD OF WINTER");
+        return Err(GameOver::TrailTooLong); // caller must end the game
+    }
+ 
+    let date = DATES[(state.turn_number - 1) as usize];
+    println!();
+    println!("MONDAY {} 1847", date);
+    println!();
     Ok(())
 }
 
