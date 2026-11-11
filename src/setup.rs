@@ -3,15 +3,51 @@
 //! Every function below is a skeleton: it compiles and returns a harmless default so the
 //! other parts can build against it. Replace the body with your own code. Keep the
 //! signature unless your team and instructor agree to change it.
-
+use crate::io;
 use crate::types::{GameOver, GameState};
 
+/// The 19 turn dates, two weeks apart. Turn 1 is DATES[0].
+const DATES: [&str; 19] = [
+    "APRIL 12",
+    "APRIL 26",
+    "MAY 10",
+    "MAY 24",
+    "JUNE 7",
+    "JUNE 21",
+    "JULY 5",
+    "JULY 19",
+    "AUGUST 2",
+    "AUGUST 16",
+    "AUGUST 30",
+    "SEPTEMBER 13",
+    "SEPTEMBER 27",
+    "OCTOBER 11",
+    "OCTOBER 25",
+    "NOVEMBER 8",
+    "NOVEMBER 22",
+    "DECEMBER 6",
+    "DECEMBER 20",
+];
 /// Prints the skill menu, reads the choice with `io::ask_number`, and returns it.
 /// A value above 5 silently becomes 0 (see the Part 1 page).
 ///
 /// Skeleton returns 3.0 ("fair to middlin'").
 pub fn get_shooting_skill_level() -> f64 {
-    3.0
+    println!("HOW GOOD A SHOT ARE YOU WITH YOUR RIFLE?");
+    println!("  (1) ACE MARKSMAN,  (2) GOOD SHOT,  (3) FAIR TO MIDDLIN'");
+    println!("  (4) NEED MORE PRACTICE,  (5) SHAKY KNEES");
+    println!("ENTER ONE OF THE ABOVE -- THE BETTER YOU CLAIM YOU ARE, THE");
+    println!("FASTER YOU'LL HAVE TO BE WITH YOUR GUN TO BE SUCCESSFUL.");
+ 
+    let skill = io::ask_number();
+ 
+    // Silent: no error message, no re-prompt. 5 or below (including 0 and
+    // negatives) passes through unchanged.
+    if skill > 5.0 {
+        0.0
+    } else {
+        skill
+    }
 }
 
 /// Runs the whole initial-purchase sequence and returns the starting `GameState`.
