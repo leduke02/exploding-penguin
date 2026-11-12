@@ -315,13 +315,76 @@ pub fn illness_check(state: &mut GameState) -> Result<(), GameOver> {
     }
     Ok(())
 }
-/// Prints the ending for a cause of death, then the formalities sequence.
-///
-/// Skeleton prints one generic line so a finished game is visible.
-pub fn resolve_ending(state: &GameState, cause: GameOver) {
-    println!("THE TRIP HAS ENDED: {:?}", cause);
+
+/// Reads one line from the player and returns true if it starts with Y.
+fn ask_yes_no(prompt: &str) -> bool {
+    println!("{}", prompt);
+    let mut line = String::new();
+    std::io::stdin().read_line(&mut line).ok();
+    line.trim().to_uppercase().starts_with('Y')
 }
 
+/// "INJURIES" if an injury is pending, otherwise "PNEUMONIA".
+fn died_of(state: &GameState) -> &'static str {
+    if state.injury_pending {
+        "INJURIES"
+    } else {
+        "PNEUMONIA"
+    }
+}
+
+/// The closing sequence shared by every cause of death.
+fn closing_sequence() {
+    println!();
+    println!("DUE TO YOUR UNFORTUNATE SITUATION, THERE ARE A FEW");
+    println!("FORMALITIES WE MUST GO THROUGH");
+    ask_yes_no("WOULD YOU LIKE A MINISTER?"); // read, not used
+    ask_yes_no("WOULD YOU LIKE A FANCY FUNERAL?"); // read, not used
+    if ask_yes_no("WOULD YOU LIKE US TO INFORM YOUR NEXT OF KIN?") {
+        println!("THAT WILL BE $50 FOR THE TELEGRAPH CHARGE.");
+    } else {
+        println!("BUT YOUR AUNT SADIE IN ST. LOUIS IS REALLY WORRIED ABOUT YOU");
+    }
+    println!();
+    println!("WE THANK YOU FOR THIS INFORMATION AND WE ARE SORRY YOU");
+    println!("DIDN'T MAKE IT TO THE GREAT TERRITORY OF OREGON");
+    println!("BETTER LUCK NEXT TIME");
+    println!();
+    println!("                        SINCERELY");
+    println!("                THE OREGON CITY CHAMBER OF COMMERCE");
+}
+
+
+/// Prints the ending for a cause of death, then the formalities sequence.
+pub fn resolve_ending(state: &GameState, cause: GameOver) {
+  match cause {
+        GameOver::TrailTooLong => {
+            println!("YOU HAVE BEEN ON THE TRAIL TOO LONG ------");
+            println!("YOUR FAMILY DIES IN THE FIRST BLIZZARD OF WINTER");
+        }
+        GameOver::Snakebite => {
+            println!("YOU DIE OF SNAKEBITE SINCE YOU HAVE NO MEDICINE");
+        }
+        GameOver::RiderMassacre => {
+            println!("YOU RAN OUT OF BULLETS AND GOT MASSACRED BY THE RIDERS");
+        }
+        GameOver::Starved => {
+            println!("YOU RAN OUT OF FOOD AND STARVED TO DEATH");
+        }
+        GameOver::CantAffordDoctor
+        | GameOver::RanOutOfMedicalSupplies
+        | GameOver::DiedFromInjuryOrIllness => {
+            match cause {
+                GameOver::CantAffordDoctor => println!("YOU CAN'T AFFORD A DOCTOR"),
+                GameOver::RanOutOfMedicalSupplies => println!("YOU RAN OUT OF MEDICAL SUPPLIES"),
+                _ => {} // wolves: apply_event already printed its message
+            }
+            println!("YOU DIED OF");
+            println!("{}", died_of(state));
+        }
+    }
+    closing_sequence();
+}
 /// Prints the arrival sequence: partial-turn food and date, final resource table.
 ///
 /// Skeleton prints one generic line so a finished game is visible.
