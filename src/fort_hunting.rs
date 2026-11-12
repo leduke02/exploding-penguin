@@ -3,7 +3,7 @@
 //! Every function below is a skeleton: it compiles and returns a harmless default so the
 //! other parts can build against it. Replace the body with your own code. Keep the
 //! signature unless your team and instructor agree to change it.
-
+use std::time::{Duration, Instant};
 use crate::types::{GameState, TurnChoice};
 use crate::io::{read_line, ask, ask_number, fmt_num,};
 use crate::rng::rnd;
@@ -94,14 +94,14 @@ pub fn go_hunting(state: &mut GameState){
 pub fn shooting_challenge(skill_level: f64) -> f64 {
     let gun_word = ["BANG", "BLAM", "POW", "WHAM"];
     let roll = (rnd() * gun_word.len() as f64).floor() as usize;
-    let mut score: f64;
+    let score: f64;
     println!("Type: {}", gun_word[roll]); 
-    // take initial time;
+    let initial_time = Instant::now();
     let player_input = read_line();
     if player_input == gun_word[roll]{
-	//take secondary time;
-	let time_taken: f64 = second_time - initial_time;  
-	score = time_taken/skill_level;
+	let time: Duration = initial_time.elapsed();
+	let time_sec: f64 = time.as_secs_f64();  
+	score = time_sec/skill_level;
     }else{
 	score = 9.0;
     }
