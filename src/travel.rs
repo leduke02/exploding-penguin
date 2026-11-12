@@ -97,10 +97,27 @@ pub fn calculate_daily_mileage(state: &mut GameState) {
 /// how the riders look.
 ///
 /// Skeleton returns `None` (never an encounter).
-pub fn rider_encounter_roll(mileage: f64) -> Option<Hostility> {
-    None
+/// Highest (5.0) at mile 400, tapering off in either direction.
+fn encounter_threshold(mileage: f64) -> f64 {
+    let x = (mileage / 100.0 - 4.0).powi(2);
+    (x + 72.0) / (x + 12.0) - 1.0
 }
 
+pub fn rider_encounter_roll(mileage: f64) -> Option<Hostility> {
+    if rand() * 10.0 > encounter_threshold(mileage) {
+        return None;
+    }
+
+    print!("RIDERS AHEAD. THEY ");
+    let looks = if rand() < 0.8 {
+        Hostility::Hostile
+    } else {
+        print!("DON'T ");
+        Hostility::Friendly
+    };
+    println!("LOOK HOSTILE");
+    Some(looks)
+}
 /// Plays out the rider encounter: tactic menu, outcome, losses. Returns
 /// `Err(GameOver::RiderMassacre)` if the bullets run out against hostile riders.
 ///
