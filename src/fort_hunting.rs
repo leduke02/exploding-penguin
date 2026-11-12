@@ -92,7 +92,19 @@ pub fn go_hunting(state: &mut GameState){
 /// Skeleton returns 2.0 (a middling response) without prompting.
 pub fn shooting_challenge(skill_level: f64) -> f64 {
     let gun_word = ["BANG", "BLAM", "POW", "WHAM"];
-2.0
+    let roll: usize = rand(0..4) as usize;
+    let mut score: f64;
+    println!("Type: {}", gun_word[roll]); 
+    // take initial time;
+    let player_input = read_line();
+    if player_input == gun_word[roll]{
+	//take secondary time;
+	let time_taken: f64 = second_time - initial_time;  
+	score = time_taken/skill_level;
+    }else{
+	score = 9.0;
+    }
+score
 }
 
 /// Turns a response score into a hunt result: food gained, bullets spent, or a miss.
