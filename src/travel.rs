@@ -73,9 +73,13 @@ pub fn choose_eating_level(state: &mut GameState) -> Result<EatingLevel, GameOve
 ///
 /// Skeleton returns `Ok(())` without changing anything.
 pub fn consume_food(state: &mut GameState, level: EatingLevel) -> Result<(), ()> {
+    let cost = food_cost(level);
+    if state.food - cost < 0.0 {
+        return Err(()); // nothing was deducted, so nothing to refund
+    }
+    state.food -= cost;
     Ok(())
 }
-
 /// Adds this turn's travel distance to `mileage`.
 ///
 /// Skeleton does nothing.
