@@ -7,6 +7,40 @@
 use crate::types::{EatingLevel, GameOver, GameState};
 use crate::io::ask_number;
 use crate::rng;
+use crate::fort_hunting::shooting_challenge;
+
+
+fn flipped(h: Hostility) -> Hostility {
+    match h {
+        Hostility::Hostile => Hostility::Friendly,
+        Hostility::Friendly => Hostility::Hostile,
+    }
+}
+
+fn ask_tactic() -> i32 {
+    loop {
+        println!("TACTICS");
+        println!("(1) RUN (2) ATTACK (3) CONTINUE (4) CIRCLE WAGONS");
+        let n = read_number();
+        if (1..=4).contains(&n) {
+            return n;
+        }
+    }
+}
+
+/// Three-way result shared by hostile ATTACK and hostile CIRCLE WAGONS.
+fn shooting_outcome(state: &mut GameState, score: f64) {
+    if score <= 1.0 {
+        println!("NICE SHOOTING---YOU DROVE THEM OFF");
+    } else if score > 4.0 {
+        println!("LOUSY SHOT---YOU GOT KNIFED");
+        state.injury_pending = true;
+        println!("YOU HAVE TO SEE OL' DOC BLANCHARD");
+    } else {
+        println!("KINDA SLOW WITH YOUR COLT .45");
+    }
+}
+
 
 fn rand() -> f64 {
     rng::rnd() as f64
@@ -121,7 +155,64 @@ pub fn rider_encounter_roll(mileage: f64) -> Option<Hostility> {
 /// Plays out the rider encounter: tactic menu, outcome, losses. Returns
 /// `Err(GameOver::RiderMassacre)` if the bullets run out against hostile riders.
 ///
-/// Skeleton does nothing and returns `Ok(())`.
-pub fn resolve_rider_encounter(state: &mut GameState, looks: Hostility) -> Result<(), GameOver> {
+/// Skeleton does nothing and returns `Ok(())`}
+   pub fn resolve_rider_encounter(state: &mut GameState, looks: Hostility) -> Result<(), GameOver> {
+    // 20% chance the announced hostility is silently flipped
+    let actual = if rand() < 0.2 { flipped(looks) } else { looks };
+
+    let tactic = ask_tactic();
+
+    match (actual, tactic) {
+        // ---- hostile ----
+        (Hostility::Hostile, 1) => {
+            state.mileage += 20.0;
+            state.misc_supplies -= 15.0;
+            state.bullets -= 150.0;
+            state.oxen_spend -= 40.0;
+        }
+        (Hostility::Hostile, 2) => {
+            let score = shooting_challenge(state.skill_level);
+            state.bullets -= 80.0 + 40.0 * score;
+            shooting_outcome(state, score);
+        }
+        (Hostility::Hostile, 3) => {
+            if rand() < 0.2 {
+                println!("THEY DID NOT ATTACK");
+                return Ok(());
+            }
+            state.bullets -= 150.0;
+            state.misc_supplies -= 15.0;
+        }
+        (Hostility::Hostile, _) => {
+            let score = shooting_challenge(state.skill_level);
+            state.bullets -= 80.0 + 30.0 * score;
+            state.mileage -= 25.0;
+            shooting_outcome(state, score);
+        }
+
+        // ---- friendly ----
+        (Hostility::Friendly, 1) => {
+            state.oxen_spend -= 10.0;
+            state.mileage += 15.0;
+        }
+        (Hostility::Friendly, 2) => {
+            state.bullets -= 100.0;
+            state.mileage -= 5.0;
+        }
+        (Hostility::Friendly, 3) => {}
+        (Hostility::Friendly, _) => {
+            state.mileage -= 20.0;
+        }
+    }
+    // closing line uses the RESOLVED hostility
+    match actual {
+        Hostility::Hostile => println!("RIDERS WERE HOSTILE--CHECK FOR LOSSES"),
+        Hostility::Friendly => println!("RIDERS WERE FRIENDLY, BUT CHECK FOR POSSIBLE LOSSES"),
+    }
+
+    if actual == Hostility::Hostile && state.bullets < 0.0 {
+        println!("YOU RAN OUT OF BULLETS AND GOT MASSACRED BY THE RIDERS");
+        return Err(GameOver::RiderMassacre);
+    }
     Ok(())
 }
