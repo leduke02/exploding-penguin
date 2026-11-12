@@ -6,6 +6,7 @@
 
 use crate::types::{GameState, TurnChoice};
 use crate::io::{read_line, ask, ask_number, fmt_num,};
+use crate::rng::rnd;
 /// Shows the right turn menu (fort or no fort), settles a valid, affordable choice, flips
 /// `fort_available_next_turn`, and returns the choice.
 ///
@@ -92,7 +93,7 @@ pub fn go_hunting(state: &mut GameState){
 /// Skeleton returns 2.0 (a middling response) without prompting.
 pub fn shooting_challenge(skill_level: f64) -> f64 {
     let gun_word = ["BANG", "BLAM", "POW", "WHAM"];
-    let roll: usize = rand(0..4) as usize;
+    let roll = (rnd() * gun_word.len() as f64).floor() as usize;
     let mut score: f64;
     println!("Type: {}", gun_word[roll]); 
     // take initial time;
@@ -110,4 +111,18 @@ score
 /// Turns a response score into a hunt result: food gained, bullets spent, or a miss.
 ///
 /// Skeleton does nothing.
-pub fn resolve_hunt_outcome(score: f64, state: &mut GameState) {}
+pub fn resolve_hunt_outcome(score: f64, state: &mut GameState) {
+    if score <= 1.0{
+	state.food += 52.0 + (rnd()*6.0).floor() as f64;
+	state.bullets -=10.0+(rnd()*4.0).floor() as f64;
+	println!("RIGHT BETWEEN THE EYES---YOU GOT A BIG ONE!!!!");
+	println!("FULL BELLIES TONIGHT!");
+    }else if 48.0 >= score*2.0 {
+	state.food += 48.0 - score*2.0;
+	state.bullets -= 10.0+score*3.0;
+	println!("NICE SHOT---RIGHT ON TARGET---GOOD EATIN' TONIGHT!!");
+    }else{
+	state.bullets -= 10.0+score*3.0;
+	println!("YOU MISSED---AND YOUR DINNER GOT AWAY.....");
+    }
+}
