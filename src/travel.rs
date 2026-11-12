@@ -6,6 +6,11 @@
 
 use crate::types::{EatingLevel, GameOver, GameState};
 use crate::io::ask_number;
+use crate::rng;
+
+fn rand() -> f64 {
+    rng::rnd() as f64
+}
 
 fn read_number() -> i32 {
     ask_number("") as i32
@@ -83,8 +88,11 @@ pub fn consume_food(state: &mut GameState, level: EatingLevel) -> Result<(), ()>
 /// Adds this turn's travel distance to `mileage`.
 ///
 /// Skeleton does nothing.
-pub fn calculate_daily_mileage(state: &mut GameState) {}
-
+pub fn calculate_daily_mileage(state: &mut GameState) {
+    let oxen_adjustment = (state.oxen_spend - 220.0) / 3.0;
+    let random_bonus = rand() * 10.0;
+    state.mileage += 200.0 + oxen_adjustment + random_bonus;
+}
 /// Rolls whether riders appear this turn. `None` means no encounter; otherwise returns
 /// how the riders look.
 ///
