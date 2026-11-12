@@ -385,9 +385,85 @@ pub fn resolve_ending(state: &GameState, cause: GameOver) {
     }
     closing_sequence();
 }
+
+const WEEKDAYS: [&str; 7] = [
+    "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
+];
+
+/// Fraction of the final turn that was actually needed to reach mile 2040.
+/// (TotalTripMileage is `mileage`; MileageLastTurn is `turn_start_mileage`.)
+fn fraction_traveled(state: &GameState) -> f64 {
+    let traveled = state.mileage - state.turn_start_mileage;
+    if traveled <= 0.0 {
+        return 1.0;
+    }
+    (2040.0 - state.turn_start_mileage) / traveled
+}
+
+/// Weekday from `Days`: if Days >= 5 subtract 7, then wrap into 0..7 with rem_euclid.
+fn weekday_name(days: f64) -> &'static str {
+    let mut d = days as i32;
+    if d >= 5 {
+        d -= 7;
+    }
+    WEEKDAYS[d.rem_euclid(7) as usize]
+}
+
+/// Calendar date from the turn number, e.g. "JULY 7 1847".
+fn calendar_date(turn: i32) -> String {
+    if turn <= 124 {
+        format!("JULY {} 1847", turn - 93)
+    } else if turn <= 155 {
+        format!("AUGUST {} 1847", turn - 124)
+    } else if turn <= 185 {
+        format!("SEPTEMBER {} 1847", turn - 155)
+    } else if turn <= 216 {
+        format!("OCTOBER {} 1847", turn - 185)
+    } else if turn <= 246 {
+        format!("NOVEMBER {} 1847", turn - 216)
+    } else {
+        format!("DECEMBER {} 1847", turn - 246)
+    }
+}
+
+/// Final resource table: same header and row layout as every other turn's status table,
+/// but nothing negative, and misc. supplies at least 1.
+fn print_final_table(state: &GameState) {
+    println!("FOOD\tBULLETS\tCLOTHING\tMISC. SUPP.\tCASH");
+    println!(
+        "{}\t{}\t{}\t{}\t{}",
+        state.food.max(0.0).floor(),
+        state.bullets.max(0.0).floor(),
+        state.clothing.max(0.0).floor(),
+        state.misc_supplies.max(1.0).floor(),
+        state.cash.max(0.0).floor()
+    );
+}
 /// Prints the arrival sequence: partial-turn food and date, final resource table.
-///
-/// Skeleton prints one generic line so a finished game is visible.
 pub fn arrive_at_oregon_city(state: &mut GameState) {
-    println!("YOU ARRIVED AT OREGON CITY");
+ let fraction = fraction_traveled(state);
+
+    // Refund food for the days of the last turn that weren't needed.
+    state.food += (1.0 - fraction) * (8.0 + 5.0 * eating_number(state.last_eating_level));
+
+    println!("YOU FINALLY ARRIVED AT OREGON CITY");
+    println!("AFTER 2040 LONG MILES---HOORAY!!!!!");
+    println!("A REAL PIONEER!");
+
+    let mut days = fraction * 14.0;
+    let turn = (state.turn_number as f64 * 14.0 + days) as i32;
+    days += 1.0;
+
+    println!("{}", weekday_name(days));
+    println!("{}", calendar_date(turn));
+
+    print_final_table(state);
+
+    println!();
+    println!("    PRESIDENT JAMES K. POLK SENDS YOU HIS");
+    println!("          HEARTIEST CONGRATULATIONS");
+    println!();
+    println!("    AND WISHES YOU A PROSPEROUS LIFE AHEAD");
+    println!();
+    println!("              AT YOUR NEW HOME");
 }
