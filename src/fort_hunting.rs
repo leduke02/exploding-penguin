@@ -117,7 +117,7 @@ pub fn resolve_hunt_outcome(score: f64, state: &mut GameState) {
 	state.bullets -=10.0+(rnd()*4.0).floor() as f64;
 	println!("RIGHT BETWEEN THE EYES---YOU GOT A BIG ONE!!!!");
 	println!("FULL BELLIES TONIGHT!");
-    }else if 48.0 >= score*2.0 {
+    }else if 18.0 >= score*2.0 {
 	state.food += 48.0 - score*2.0;
 	state.bullets -= 10.0+score*3.0;
 	println!("NICE SHOT---RIGHT ON TARGET---GOOD EATIN' TONIGHT!!");
